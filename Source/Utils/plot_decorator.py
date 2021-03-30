@@ -17,6 +17,7 @@ def plot_decorator(func):
         
         sn = ()
         sp = ()
+        
         if 'savename' in kwargs:
             sn = kwargs.get('savename')
         if 'savepath' in kwargs:
@@ -26,11 +27,11 @@ def plot_decorator(func):
             plt.show()
       
         elif all((sn,sp)):
-        
             assert isinstance(sn,str), "Invalid savename type."
         
             if sp.exists():
                 with open(sp / (sn + ".png"), mode="wb") as outfile:
+                    #plt.close()
                     plt.savefig(outfile, format="png")
             else:
                 raise Exception("Requested folder: " + str(sp) + " does not exist.")

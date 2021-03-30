@@ -5,38 +5,92 @@
 Created on Fri Nov 20 14:31:11 2020
 
 @author: ikaheia1
+
+Helper functions for pytest test data loading.
+Load a csv file and convert it using separate loading functions for:
+    1) Numpy array format
+    2) Pandas series format
+    3) Pandas dataframe format
+
 """
 
-import numpy as np
 import pandas as pd
 from pathlib import Path
 
-
-def setup_np():
-    
-    open_name =  Path(r'F:\tscfat\Data\Battery_test_data_1.csv')
-    #open_name = Path('/u/26/ikaheia1/data/Documents/SpecialAssignment/tscfat/Data/Battery_test_data_1.csv')
+# TODO convert theses into single function!
+'''
+def setup_data(open_name, ret_type):
+     
     with open_name.open('r') as read_file:
-        df = pd.read_csv(read_file)
-        df['time'] = pd.to_datetime(df['time'],unit = 's')
-        return df['battery_level'].values
+        df = pd.read_csv(read_file, index_col=0)
+        df['time'] = pd.to_datetime(df['time'])
+        df = df.set_index('time')
+        
+        if ret_type == 'numpy':
+            return df['level'].values
+        elif ret_type == 'series':
+            return df['level']
+        else:
+            return df
+'''
+    
+def setup_np():
+    """
+    Load the test data and convert the values into 1D numpy array.
+
+    Returns
+    -------
+    _ = numpy array
+        A 1D numpy array containing the test data time series.
+
+    """
+    
+    open_name = Path.cwd() / 'Data' / 'Test_data.csv'
+    
+    with open_name.open('r') as read_file:
+        df = pd.read_csv(read_file, index_col=0)
+        df.index = pd.to_datetime(df.index)
+        #df['time'] = pd.to_datetime(df['time'])
+        #df = df.set_index('time')
+        return df['level'].values
     
 
 def setup_ps():
+    """
+    Load the test data and convert the values into pandas Series.
 
-    open_name =  Path(r'F:\tscfat\Data\Battery_test_data_1.csv')
-    #open_name = Path('/u/26/ikaheia1/data/Documents/SpecialAssignment/tscfat/Data/Battery_test_data_1.csv')
+    Returns
+    -------
+    _ = pandas Series
+        A pandas series containing the test data time series.
+
+    """
+
+    open_name = Path.cwd() / 'Data' / 'Test_data.csv'
+
     with open_name.open('r') as read_file:
-        df = pd.read_csv(read_file)
-        df['time'] = pd.to_datetime(df['time'],unit = 's')
-        return df['battery_level']
-    
+        df = pd.read_csv(read_file, index_col=0)
+        df.index = pd.to_datetime(df.index)
+        #df['time'] = pd.to_datetime(df['time'])
+        #df = df.set_index('time')
+        return df['level']
+  
 def setup_pd():
+    """
+    Load the test data and convert the values into pandas DataFrame.
+
+    Returns
+    -------
+    _ = pandas DataFrame
+        A pandas DataFrame containing the test data time series.
+
+    """
     
-    open_name =  Path(r'F:\tscfat\Data\Battery_test_data_1.csv')
-    #open_name =  Path(r'C:\Users\arsii\Documents\tscfat\Data\Battery_test_data_1.csv')
-    #open_name = Path('/u/26/ikaheia1/data/Documents/SpecialAssignment/tscfat/Data/Battery_test_data_1.csv')
+    open_name = Path.cwd() / 'Data' / 'Test_data.csv'
+
     with open_name.open('r') as read_file:
-        df = pd.read_csv(read_file)
-        df['time'] = pd.to_datetime(df['time'],unit = 's')
+        df = pd.read_csv(read_file, index_col=0)
+        df.index = pd.to_datetime(df.index)
+        #df['time'] = pd.to_datetime(df['time'])
+        #df = df.set_index('time')
         return df

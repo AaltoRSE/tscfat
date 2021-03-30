@@ -14,20 +14,26 @@ the results:
     - Autocorrelation function
     
 """
+
 import statsmodels.api as sm
 import pandas as pd
 import matplotlib.pyplot as plt
 from Source.Utils.argument_loader import setup_ps, setup_pd
 import pytest
 from Source.Utils.plot_decorator import plot_decorator
+from matplotlib import gridspec
+
+plt.style.use('seaborn')
+plt.ioff()
 
 @plot_decorator
 def _plot_summary(series,
-                   title,
-                   savepath=False,
-                   savename=False,
-                   test = False
-                   ):
+                  title,
+                  window = 14,
+                  savepath = False,
+                  savename = False,
+                  test = False
+                  ):
     """
     
     Parameters
@@ -36,6 +42,8 @@ def _plot_summary(series,
         A time series for which the surrary is calculated 
     title : str, optional
         Summary plot title. The default is "Time series summary".
+    window : int
+        Rolling window size. The default is 14.
     savepath : Path object, optional
         Figure save path. The default is False.
     savename : Path object, optional
@@ -46,51 +54,85 @@ def _plot_summary(series,
     None.
 
     """
+        
+    fig,ax = plt.subplots(3,2,figsize=(10,10))
+    fig.suptitle(title,fontsize=20,y=1)
     
-    fig,ax = plt.subplots(3,2,figsize=(8,8))
-    fig.suptitle(title,fontsize=20,y=1.05)
+    gridsize = (3,2)
+    ax1 = plt.subplot2grid(gridsize, (0,0), colspan=2,rowspan=1)
+    ax2 = plt.subplot2grid(gridsize, (1,0), colspan=1,rowspan=1)
+    ax3 = plt.subplot2grid(gridsize, (1,1), colspan=1,rowspan=1)
+    ax4 = plt.subplot2grid(gridsize, (2,0), colspan=1,rowspan=1)
+    ax5 = plt.subplot2grid(gridsize, (2,1), colspan=1,rowspan=1)
     
-    ax[0,0].plot(series)
-    ax[0,0].set_title('Original timeseries')
-    ax[0,0].tick_params('x', labelrotation=45)
+    ax1.plot(series.index,series.values)
+    ax1.set_title('Original timeseries')
+    ax1.tick_params('x', labelrotation=45)
     
-    ax[0,1].hist(series,20)
-    ax[0,1].set_title("Histogram")
-
+    ax2.plot(series.index, series.rolling(window).mean())
+    #series.rolling(window).mean().plot(ax=ax2)
+    #sm.graphics.tsa.plot_pacf(series,lags=30,ax=ax5)
+    ax2.set(title='Rolling Average',xlabel='date',ylabel='rolling average')
     
-    pd.plotting.lag_plot(series,lag=1,ax=ax[1,0])
-    ax[1,0].set_title('Lag plot / lag 1')
-    ax[1,0].set_box_aspect(1)
-    #ax[1,0].set(adjustable='box-forced', aspect='equal')
+    ax3.hist(series.values,20)
+    ax3.set_title("Histogram")
+  
+    ax4.plot(series.values[1:],series.values[:-1],'o')
+    ax4.set_title('Lag plot / lag 1')
+    ax4.set_box_aspect(1)
+    #ax3.set(adjustable='box-forced', aspect='equal')
+      
+    pd.plotting.autocorrelation_plot(series,ax=ax5)
+    #ax5.plot(series.index, series.values)
+    ax5.set_xlim([0,30])
+    ax5.set_title('Autocorrelation')
     
+    #series.rolling(14).mean().plot(ax=ax5)
+    #sm.graphics.tsa.plot_pacf(series,lags=30,ax=ax5)
+    #ax5.set(xlabel='lag',ylabel='rolling average')
     
-    pd.plotting.autocorrelation_plot(series,ax=ax[1,1])
-    ax[1,1].set_xlim([0,240])
-    ax[1,1].set_title('Autocorrelation')
-    
-    sm.graphics.tsa.plot_pacf(series,lags=48,ax=ax[2,0])
-    
-    sm.graphics.tsa.plot_acf(series,lags=24,ax=ax[2,1])
+    #sm.graphics.tsa.plot_acf(series,lags=30,ax=ax[2,1])
+    #ax[2,1].set(xlabel='lag',ylabel='correlation')
     
     fig.tight_layout(pad=1.0)
+    
+    ''' 
+    #%%
+    if all((savename,savepath)):
+        
+        assert isinstance(savename,str), "Invalid savename type."
+    
+        if savepath.exists():
+            with open(savepath / (savename + "_summary.png"), mode="wb") as outfile:
+                plt.savefig(outfile, format="png")
+        else:
+            raise Exception("Requested folder: " + str(savepath) + " does not exist.")
+    else:
+        raise Exception("Arguments were not given correctly.")
+    
+    '''
     
     return fig
 
 
 def summary_statistics(series,
                        title = "Time series summary",
+                       window = 14,
                        savepath = False,
                        savename = False,
-                       test = False):
+                       test = False,
+                       ):
     """
     
 
     Parameters
     ----------
     series : Pandas Series
-        A time series for which the surrary is calculated 
+        A time series for which the summary is calculated 
     title : str, optional
         Summary plot title. The default is "Time series summary".
+    window : int
+        Rolling window size. The default is 14.
     savepath : Path object, optional
         Figure save path. The default is False.
     savename : Path object, optional
@@ -106,7 +148,12 @@ def summary_statistics(series,
     
     assert isinstance(series, pd.Series), "Series is not a pandas Series."
     
-    _plot_summary(series,title,savepath,savename,test=False)
+    _plot_summary(series,
+                  title,
+                  window,
+                  savepath = savepath,
+                  savename = savename,
+                  test=False)
 
     
 def test_Summary_statistics():

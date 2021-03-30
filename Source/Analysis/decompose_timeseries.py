@@ -15,16 +15,18 @@ from Source.Utils.argument_loader import setup_np, setup_pd
 import pytest
 from Source.Utils.plot_decorator import plot_decorator
 
+#TODO! = fix the xlabels 
+
 @plot_decorator
 def _plot_decomposition(Result,
-                      title,
-                      savepath = False,
-                      savename = False,
-                      ylabel = "Battery Level (%)",
-                      xlabel  = "Date",
-                      dates = False,
-                      test = False,
-                      ):
+                        title,
+                        savepath = False,
+                        savename = False,
+                        ylabel = "Value",
+                        xlabel  = "Date",
+                        dates = False,
+                        test = False,
+                        ):
     """
     Plot the decomposed time series.
 
@@ -60,7 +62,7 @@ def _plot_decomposition(Result,
     
     fig1 = plt.figure(figsize=(9.3,9.3))
     
-    plt.suptitle(title,fontsize=22,y=1.05)
+    plt.suptitle(title,fontsize=22,y=1)
     
     plt.subplot(4,1,1)
     plt.plot(Result.observed)
@@ -165,7 +167,7 @@ def STL_decomposition(series,
                           title,
                           savepath = savepath,
                           savename = savename,
-                          ylabel = "Battery Level (%)",
+                          ylabel = "Value",
                           xlabel  = "Date",
                           dates = False,
                           )
